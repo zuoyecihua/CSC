@@ -1,0 +1,62 @@
+config_name: test_error_judge
+
+random_seed: 20211025 #20210930
+
+load_model_path: ""  #"./saved/ErrCorrector/20211018130537/model_epoch10_f10.7740213473154469.pkl"
+
+optimizer:
+  type: adamW
+  lr: 0.00005
+  cls_lr: 0.00005
+  momentum: 0.9
+  beta: 0.999
+  weight_decay: 0
+
+
+model:
+  model_type: ErrPinyinCorrector
+  pretrained_model_name: bert-base-chinese  #bert-base-chinese #clue/albert_chinese_small  clue/roberta_chinese_base
+  only_ids: False
+  pinyin: False
+  position: True
+
+dataset:
+  train:
+    type: SigPromptDatasetFromPkl
+    text_path: ./resources/merged/prompt_items_for_train.pkl #./resources/merged/clean_extend_training_input_shuf_v1.txt   #TrainingInputAll  extend_training_input_shuf clean_extend_training_input_shuf_v1.txt
+    label_path: ./resources/merged/clean_extend_training_truth_shuf_v1.txt #./resources/merged/clean_extend_training_truth_shuf_v1.txt   #TrainingTruthAll   extend_training_truth_shuf clean_extend_training_truth_shuf_v1.txt
+  test:
+    type: SigPromptDatasetFromPkl
+    text_path: ./resources/merged/prompt_items_for_test.pkl
+    label_path: ./resources/sighan15/TestTruth.txt
+
+
+
+loader:
+  train:
+    batch_size: 4
+    shuffle: True
+    call_func: sighan_error_correct_prompt
+    num_workers: 0
+  test:
+    batch_size: 4
+    shuffle: False
+    call_func: sighan_error_correct_prompt
+    num_workers: 4
+
+train_paras:
+  epochs: 5
+  print_freq: 50
+  loss: ce
+  cuda_id: 0
+  save_strategy: best
+  save_dir: ./saved/ErrCorrector_promptor/
+  max_model_num: 5
+  gamma: 0.9
+  use_swa: True
+
+
+
+
+
+

@@ -1,0 +1,66 @@
+config_name: detec_correct_pipeline
+
+random_seed: 20211014 #20210930
+
+load_model_path: "./saved/ErrCorrector/20211018130537/model_epoch10_f10.7740213473154469.pkl"
+
+trained_models:
+  detec_model: "saved/pinyin_corrector/20211031154253/model_epoch5_f10.7618197987484095.pkl"
+  correct_model: "saved/ErrCorrector_promptor/20211030173400/model_epoch5_f10.7238267098017048.pkl"
+
+
+dataset:
+  train:
+    type: SigDataset
+    text_path: ./resources/merged/clean_extend_training_input_shuf_v1.txt  #./resources/merged/clean_extend_training_input_shuf_v1.txt   #TrainingInputAll  extend_training_input_shuf clean_extend_training_input_shuf_v1.txt
+    label_path: ./resources/merged/clean_extend_training_truth_shuf_v1.txt #./resources/merged/clean_extend_training_truth_shuf_v1.txt   #TrainingTruthAll   extend_training_truth_shuf clean_extend_training_truth_shuf_v1.txt
+  test:
+    type: SigDataset
+    text_path: ./resources/sighan15/TestInput.txt
+    label_path: ./resources/sighan15/TestTruth.txt
+
+
+
+loader:
+  train:
+    batch_size: 32
+    shuffle: False
+    call_func: sighan_error_detec_csc
+    num_workers: 0
+  test:
+    batch_size: 8
+    shuffle: False
+    call_func: sighan_error_detec_csc
+    num_workers: 4
+
+
+#下面是无用参数，保留在此处与旧代码兼容
+
+train_paras:
+  epochs: 5
+  print_freq: 50
+  loss: ce
+  cuda_id: 1
+  save_strategy: best
+  save_dir: ./saved/ErrCorrector_fintuned/
+  max_model_num: 5
+  gamma: 0.9
+  use_swa: True
+
+
+
+optimizer:
+  type: adamW
+  lr: 0.00005
+  cls_lr: 0.00005
+  momentum: 0.9
+  beta: 0.999
+  weight_decay: 0
+
+
+model:
+  model_type: ErrPinyinCorrector
+  pretrained_model_name: bert-base-chinese  #bert-base-chinese #clue/albert_chinese_small  clue/roberta_chinese_base
+  only_ids: False
+  pinyin: True
+  position: False

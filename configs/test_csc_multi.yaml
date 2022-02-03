@@ -1,0 +1,63 @@
+config_name: test_error_judge
+
+random_seed: 202111022 #20210930
+
+load_model_path: ""
+
+optimizer:
+  type: adamW
+  lr: 0.00005
+  cls_lr: 0.00005
+  momentum: 0.9
+  beta: 0.999
+  weight_decay: 0
+
+
+model:
+  model_type: DetecSelectPipeline
+  pretrained_model_name: bert-base-chinese  #bert-base-chinese #clue/albert_chinese_small  clue/roberta_chinese_base
+  only_ids: False
+  pinyin: True
+  position: True
+  share_param: True
+  hidden_size: 768
+
+dataset:
+  train:
+    type: SigDataset
+    text_path: ./resources/merged/clean_extend_training_input_shuf_v1.txt #./resources/merged/clean_extend_training_input_shuf_v1.txt   #TrainingInputAll  extend_training_input_shuf clean_extend_training_input_shuf_v1.txt
+    label_path: ./resources/merged/clean_extend_training_truth_shuf_v1.txt  #./resources/merged/clean_extend_training_truth_shuf_v1.txt   #TrainingTruthAll   extend_training_truth_shuf clean_extend_training_truth_shuf_v1.txt
+  test:
+    type: SigDataset
+    text_path: ./resources/sighan15/TestInput.txt
+    label_path: ./resources/sighan15/TestTruth.txt
+
+
+loader:
+  train:
+    batch_size: 16
+    shuffle: True
+    call_func: sighan_error_detec_csc
+    num_workers: 0
+  test:
+    batch_size: 16
+    shuffle: False
+    call_func: sighan_error_detec_csc
+    num_workers: 0
+
+train_paras:
+  epochs: 10
+  print_freq: 100
+  loss: ce
+  cuda_id: 3
+  save_strategy: best
+  save_dir: ./saved/pinyin_corrector_pipeline_multi/
+  max_model_num: 5
+  gamma: 0.9
+  use_swa: True
+
+
+
+
+
+

@@ -1,0 +1,59 @@
+config_name: test_error_judge
+
+random_seed: 20210930
+
+load_model_path: ""
+
+optimizer:
+  type: adam
+  lr: 0.00001
+  cls_lr: 0.00005
+  momentum: 0.9
+  beta: 0.999
+  weight_decay: 0
+
+
+model:
+  model_type: SentenceJudger
+  pretrained_model_name: bert-base-chinese
+
+dataset:
+  train:
+    type: ErrJudgeDataset
+    text_path: ./resources/merged/clean_extend_training_input_shuf_v1.txt   #TrainingInputAll  extend_training_input_shuf clean_extend_training_input_shuf_v1
+    label_path: ./resources/merged/clean_extend_training_truth_shuf_v1.txt   #TrainingTruthAll   extend_training_truth_shuf clean_extend_training_truth_shuf_v1
+  test:
+    type: SigDataset
+    text_path: ./resources/merged/TestInput.txt
+    label_path: ./resources/merged/TestTruth.txt
+
+
+
+loader:
+  train:
+    batch_size: 4
+    shuffle: True
+    call_func: sighan_error_judge
+    num_workers: 0
+  test:
+    batch_size: 4
+    shuffle: False
+    call_func: sighan_error_judge
+    num_workers: 0
+
+train_paras:
+  epochs: 5
+  print_freq: 10
+  loss: ce
+  cuda_id: 1
+  save_strategy: best
+  save_dir: ./saved/SentenceJudger/
+  max_model_num: 3
+  gamma: 0.9
+  use_swa: False
+
+
+
+
+
+
